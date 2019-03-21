@@ -63,7 +63,7 @@ def valor_prioridade(c):
 
 if __name__ == "__main__":
 
-    value = converterPosFixa('(A.B).C')
+    value = converterPosFixa('(A+B).C')
     print(value)
     graph = Graph()
     queue = []
@@ -72,10 +72,11 @@ if __name__ == "__main__":
         if (caracter >= 'A' and caracter <= 'Z'):
             edge = Edge(None,caracter)
 
-            second_node = Node(None, str(node_name))
+            second_node = Node(node_name)
             node_name+=1
             edge.node = second_node
-            fisrt_node = Node(edge, node_name)
+            fisrt_node = Node(node_name)
+            fisrt_node.edges.append(edge)
             node_name+=1
 
             queue.append((fisrt_node, second_node))
@@ -91,25 +92,62 @@ if __name__ == "__main__":
 
             edge = Edge(first_node_1, '&')
             graph.list_edge.append(edge)
-            second_node_0.edge = edge
+            second_node_0.edges.append(edge)
 
             edge = Edge(first_node_0, '&')
             graph.list_edge.append(edge)
-            init_node = Node(edge, node_name)
+
+            init_node = Node(node_name)
+            init_node.edges.append(edge)
             node_name+=1
             graph.list_node.append(init_node)
 
-            final_node = Node(None, node_name)
+            final_node = Node(node_name)
             node_name+=1
             graph.list_node.append(final_node)
             edge = Edge(final_node, '&',)
             graph.list_edge.append(edge)
-            second_node_1.edge = edge
+            second_node_1.edges.append(edge)
 
             queue.append((init_node, final_node))
+
+        elif caracter == '+':
+            first_node_1, second_node_1 = queue.pop()
+            first_node_0, second_node_0 = queue.pop()
+
+
+            init_node = Node(node_name)
+            node_name+=1
+            graph.list_node.append(init_node)
+
+            edge_node_1 = Edge(first_node_1, '&',)
+            graph.list_edge.append(edge)
+            edge_node_0 = Edge(first_node_0, '&',)
+            graph.list_edge.append(edge)
+
+            init_node.edges.append(edge_node_1)
+            init_node.edges.append(edge_node_0)
+
+            final_node = Node(node_name)
+            node_name+=1
+            graph.list_node.append(final_node)
+
+            edge_node_1 = Edge(final_node, '&',)
+            graph.list_edge.append(edge)
+            edge_node_0 = Edge(final_node, '&',)
+            graph.list_edge.append(edge)
+
+            second_node_1.edges.append(edge_node_1)
+            second_node_0.edges.append(edge_node_0)
+
+            queue.append((init_node, final_node))
+
+
+
 
     init,final = queue.pop()
     print("Inicial ",init.name)
     print("Final ",final.name)
+
 
     graph.show()

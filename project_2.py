@@ -63,7 +63,7 @@ def valor_prioridade(c):
 
 if __name__ == "__main__":
 
-    value = converterPosFixa('(A+B).C')
+    value = converterPosFixa('(A.B).(C+A)')
     print(value)
     graph = Graph()
     queue = []
@@ -72,12 +72,15 @@ if __name__ == "__main__":
         if (caracter >= 'A' and caracter <= 'Z'):
             edge = Edge(None,caracter)
 
+
+            fisrt_node = Node(node_name)
+            node_name+=1
+
             second_node = Node(node_name)
             node_name+=1
             edge.node = second_node
-            fisrt_node = Node(node_name)
+
             fisrt_node.edges.append(edge)
-            node_name+=1
 
             queue.append((fisrt_node, second_node))
 
@@ -146,8 +149,5 @@ if __name__ == "__main__":
 
 
     init,final = queue.pop()
-    print("Inicial ",init.name)
-    print("Final ",final.name)
-
 
     graph.show()

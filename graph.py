@@ -25,7 +25,6 @@ class Graph():
         G = nx.OrderedMultiDiGraph()
         G.add_nodes_from(x.name for x in self.list_node)
         labels = {}
-        cont = 0
         for node in self.list_node:
             for edge in node.edges:
                 labels[(edge.node.name, node.name)] = edge.name

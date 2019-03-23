@@ -22,13 +22,14 @@ class Graph():
             self.list_edge.append(edge)
 
     def show(self):
-        G = nx.DiGraph()
+        G = nx.OrderedMultiDiGraph()
         G.add_nodes_from(x.name for x in self.list_node)
         labels = {}
+        cont = 0
         for node in self.list_node:
             for edge in node.edges:
                 labels[(edge.node.name, node.name)] = edge.name
-                G.add_edge(edge.node.name, node.name,length = 5)
+                G.add_edge(edge.node.name, node.name, length=5)
 
         print("Nodes do Grafo: ")
         print(G.nodes())
@@ -38,7 +39,7 @@ class Graph():
 
         pos = nx.layout.spring_layout(G)
 
-        plt.figure(figsize=(20,20)) 
+        plt.figure(figsize=(20, 20))
 
         nx.draw(G, pos, with_labels=True, edge_color='black', width=2,
                 linewidths=1, node_size=250, node_color='green', alpha=0.9,)

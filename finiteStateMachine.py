@@ -11,6 +11,8 @@ class FiniteStateMachine():
         self.postfixNotation = postfixNotation
         self.graph = Graph()
         self.queue = []
+        self.solutions = {}
+        self.alphabet = []
 
     def addNodeAnd(self):
         first_node_0, second_node_0 = self.queue.pop()
@@ -102,6 +104,7 @@ class FiniteStateMachine():
         for caracter in self.postfixNotation.expression_postfix:
             if (caracter >= 'A' and caracter <= 'Z' or caracter >= 'a' and caracter <= 'z'):
                 self.addNodeState(caracter)
+                self.alphabet.append(caracter)
             elif caracter == '.':
                 self.addNodeAnd()
             elif caracter == '|':
@@ -109,4 +112,145 @@ class FiniteStateMachine():
             elif caracter == '*':
                 self.getNodeCloseState()
         self.init, self.final = self.queue.pop()
+        self.alphabet = list(set(self.alphabet))
         return self.graph
+
+
+    def getDFA(self):
+        
+        graphNFA = self.getNFA()
+        graphDFA = Graph()
+
+
+        initial_node = self.init
+        solution_index = 0
+        solutions_queaue = []
+
+        #A chave é a lista com os Qs ... Preciso de alguma maneira de deixar eles em ordem, pois ai comparo as chaves, ai não adiciona outro novo valor
+        self.solutions['S'+solution_index] = self.getClosure(initial_node) 
+        solutions_queaue.append('S'+solution_index)
+        solution_index = solution_index + 1    
+        
+        while len(solutions_queaue) > 0:
+            actual_solution = solutions_queaue.pop(0)
+            for caracter in self.alphabet:
+              new_solution =  self.dfaEdge(actual_solution, caracter)
+              #Verifica se a solution ja esta ans solution
+              #caso nao esteja adiciona a nova Solution
+              #Talvez precisamos de uma lista para guardar o valor das solutions indo para onde (s0, x s1) opa, esse é o grafo, atualizar o novo grafo
+
+
+
+
+
+
+
+
+
+
+    def getClosure(self, initial_node):
+        visited_nodes = []
+        queaue_nodes = []
+        visited_nodes.append(initial_node)
+        queaue_nodes.append(initial_node)
+
+        
+        while len(queaue_nodes) > 0:
+            node = queaue_nodes.pop(0)
+            for ed in node.edges:
+                if ed.name == '&':
+                    visited_nodes.append(ed.node)
+                    queaue_nodes.append(ed.node)
+
+        return list(set(visited_nodes))
+
+    def dfaEdge(self, solution, value):
+        list_nodes = self.solutions[solution]
+
+        visited_nodes = []
+        queaue_nodes = list_nodes.copy()
+
+        while len(queaue_nodes) > 0:
+            node = queaue_nodes.pop(0)
+            for ed in node.edges:
+                if ed.name == '&':
+                    visited_nodes.append(ed.node)
+                    queaue_nodes.append(ed.node)
+                if  ed.name == value:
+                    visited_nodes.append(ed.node)
+
+        return list(set(visited_nodes))
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+

@@ -8,14 +8,33 @@ class Graph():
         self.list_edge = []
         self.list_node = []
         self.node_name = 0
+        self.state_name = 0
 
     def getNextName(self):
         self.node_name += 1
         return self.node_name
 
+    def getNextState(self):
+        self.state_name += 1
+        return 'S{}'.format(self.state_name)
+
+    def getCurrentState(self):
+        return 'S{}'.format(self.state_name)
+
     def addNodes(self, nodes):
         for node in nodes:
             self.list_node.append(node)
+
+    def findNode(self, name):
+        for node in self.list_node:
+            if node.name == name:
+                return node
+        return None
+
+    def getStringSolution(self, solution):
+        string_solution = ''.join(
+            [str(item.name) for item in solution])
+        return string_solution
 
     def addEdges(self, edges):
         for edge in edges:

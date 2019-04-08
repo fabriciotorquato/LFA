@@ -16,8 +16,8 @@ class FiniteStateMachine():
         self.alphabet = []
 
     def addNodeAnd(self):
-        first_node_0, second_node_0 = self.queue.pop()
         first_node_1, second_node_1 = self.queue.pop()
+        first_node_0, second_node_0 = self.queue.pop()
 
         edge_1 = Edge(first_node_1, '&')
         second_node_0.edges.append(edge_1)
@@ -101,10 +101,8 @@ class FiniteStateMachine():
         self.graph.addEdges([edge])
         self.queue.append((fisrt_node, second_node))
 
-    def addDFAedgeNode(self, fisrt_node, caracter, node_2, graph):
+    def addDFAedgeNode(self, fisrt_node, caracter, second_node, graph):
         edge = Edge(None, caracter)
-
-        second_node = Node(node_2)
 
         edge.node = second_node
         fisrt_node.edges.append(edge)
@@ -124,7 +122,7 @@ class FiniteStateMachine():
                 self.addNodeOr()
             elif caracter == '*':
                 self.getNodeCloseState()
-        self.final, self.init = self.queue.pop()
+        self.init, self.final = self.queue.pop()
         self.alphabet = list(set(self.alphabet))
         return self.graph
 
@@ -157,12 +155,13 @@ class FiniteStateMachine():
                 if len(new_solution) != 0:
                     string_solution = graphDFA.getStringSolution(
                         new_solution)
-
-                    if string_solution not in self.list_solutions_nodes:
+                        
+                    if string_solution not in self.list_solutions_nodes.values():
 
                         current_node = DFAedge(graphDFA.getNextState())
-                        current_node.nodes = closure
+                        current_node.nodes = new_solution
                         string_solution = current_node.getStringSolution()
+                        print(string_solution)
                         graphDFA.addNodes([current_node])
 
                         self.list_solutions_nodes[current_node.name] = current_node.nodes_name
@@ -177,7 +176,9 @@ class FiniteStateMachine():
                         )[self.list_solutions_nodes.values().index(string_solution)]
                         graphDFA = self.addDFAedgeNode(
                             current_node, caracter, graphDFA.findNode(node_name), graphDFA)
-
+        
+        graphDFA.clearNodes()
+        
         return graphDFA
 
     def getClosure(self, initial_node):
@@ -187,7 +188,6 @@ class FiniteStateMachine():
         name_visited_nodes.append(initial_node.name)
         visited_nodes.append(initial_node)
         queue_nodes.append(initial_node)
-        print(queue_nodes)
 
         while len(queue_nodes) > 0:
             node = queue_nodes.pop(0)
@@ -200,7 +200,6 @@ class FiniteStateMachine():
                 else:
                     queue_nodes = []
                     break
-                
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes
@@ -215,7 +214,7 @@ class FiniteStateMachine():
         while len(queue_nodes) > 0:
             node = queue_nodes.pop(0)
             for ed in node.edges:
-                if ed.name == "&":
+                if ed.name == "&" or ed.name == value:
                     if ed.node.name not in name_visited_nodes:
                         name_visited_nodes.append(ed.node.name)
                         visited_nodes.append(ed.node)

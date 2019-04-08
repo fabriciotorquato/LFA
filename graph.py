@@ -40,14 +40,34 @@ class Graph():
         for edge in edges:
             self.list_edge.append(edge)
 
+    def clearNodes(self):
+        is_nodes_validaded = True
+
+        while is_nodes_validaded:
+            new_node_list = []
+            new_edge_list = []
+            is_nodes_validaded = False
+            for node in self.list_node:
+                validaded = False
+                for edge in self.list_edge:
+                    if node.name == edge.node.name and node.edges[0] != edge and len(node.edges) != 1:
+                        new_edge_list.append(edge)
+                        validaded = True                        
+                if validaded:
+                    new_node_list.append(node)
+                else:
+                    is_nodes_validaded = True
+            self.list_edge = new_edge_list
+            self.list_node = new_node_list
+
     def show(self):
         G = nx.OrderedMultiDiGraph()
         G.add_nodes_from(x.name for x in self.list_node)
         labels = {}
         for node in self.list_node:
             for edge in node.edges:
-                labels[(edge.node.name, node.name)] = edge.name
-                G.add_edge(edge.node.name, node.name, length=5)
+                labels[(node.name, edge.node.name)] = edge.name
+                G.add_edge(node.name, edge.node.name, length=5)
 
         print("Nodes do Grafo: ")
         print(G.nodes())

@@ -105,7 +105,8 @@ class FiniteStateMachine():
         edge = Edge(None, caracter)
 
         edge.node = second_node
-        fisrt_node.edges.append(edge)
+        if graph.addEdges([edge]):
+            fisrt_node.edges.append(edge)
 
         graph.addEdges([edge])
         return graph
@@ -207,12 +208,14 @@ class FiniteStateMachine():
         while len(queue_nodes) > 0:
             node = queue_nodes.pop(0)
             for ed in node.edges:
-                if ed.name == "&" or ed.name == value:
+                if ed.name == "&":
                     if ed.node.name not in name_visited_nodes:
                         name_visited_nodes.append(ed.node.name)
                         visited_nodes.append(ed.node)
                         queue_nodes.append(ed.node)
-
+                    if  ed.name == value:
+                        name_visited_nodes.append(ed.node.name)
+                        visited_nodes.append(ed.node)
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes

@@ -105,10 +105,11 @@ class FiniteStateMachine():
         edge = Edge(None, caracter)
 
         edge.node = second_node
-        fisrt_node.edges.append(edge)
+        if graph.addEdges([edge]):
+            fisrt_node.edges.append(edge)
 
-        graph.addNodes([fisrt_node, second_node])
-        graph.addEdges([edge])
+            graph.addNodes([fisrt_node, second_node])
+            graph.addEdges([edge])
         return graph
 
     def getNFA(self):

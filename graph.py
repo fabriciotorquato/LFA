@@ -38,27 +38,34 @@ class Graph():
 
     def addEdges(self, edges):
         for edge in edges:
-            self.list_edge.append(edge)
+            if edge not in self.list_edge:
+                self.list_edge.append(edge)
+            else:
+                return False
+        return True
 
     def clearNodes(self):
         is_nodes_validaded = True
 
         while is_nodes_validaded:
             new_node_list = []
-            new_edge_list = []
+            new_edge_list = set()
             is_nodes_validaded = False
             for node in self.list_node:
                 validaded = False
                 for edge in self.list_edge:
-                    if node.name == edge.node.name and node.edges[0] != edge and len(node.edges) != 1:
-                        new_edge_list.append(edge)
-                        validaded = True                        
+                    if node.name == edge.node.name:
+                        if not (len(node.edges) == 1 and node.edges[0].node.name == node.name):
+                            new_edge_list.add(edge)
+                            validaded = True
                 if validaded:
                     new_node_list.append(node)
                 else:
                     is_nodes_validaded = True
-            self.list_edge = new_edge_list
+            self.list_edge = list(new_edge_list)
+            print(len(self.list_edge))
             self.list_node = new_node_list
+            print(len(self.list_node))
 
     def show(self):
         G = nx.OrderedMultiDiGraph()

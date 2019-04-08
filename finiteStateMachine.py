@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from edge import Edge
+from DFAedge import DFAedge
 from node import Node
 from graph import Graph
 
@@ -129,82 +130,99 @@ class FiniteStateMachine():
 
     def getDFA(self):
 
-        _ = self.getNFA()
+        _ = self.getNFA().show()
         graphDFA = Graph()
 
         initial_node = self.init
-        solutions_queaue = []
+        queue = []
 
         closure = self.getClosure(initial_node)
-        string_solution = graphDFA.getStringSolution(
-            closure)
 
-        self.list_solutions_nodes[graphDFA.getCurrentState()] = string_solution
-
-        closure_node = Node(graphDFA.getCurrentState())
-        solutions_queaue.append(closure_node)
+        closure_node = DFAedge(graphDFA.getNextState())
+        closure_node.nodes = closure
+        string_solution = closure_node.getStringSolution()
+        print(string_solution)
         graphDFA.addNodes([closure_node])
 
-        while len(solutions_queaue) > 0:
-            actual_solution = solutions_queaue.pop(0)
+        self.list_solutions_nodes[closure_node.name] = closure_node.nodes_name
+
+        queue.append(closure_node)
+
+        while len(queue) > 0:
+            actual_DFAedge = queue.pop()
             new_solution = []
             for caracter in self.alphabet:
 
-                new_solution = self.dfaEdge(actual_solution, caracter)
+                new_solution = self.searchDFAedge(actual_DFAedge, caracter)
                 if len(new_solution) != 0:
                     string_solution = graphDFA.getStringSolution(
                         new_solution)
-                    print(string_solution)
 
                     if string_solution not in self.list_solutions_nodes:
 
-                        self.list_solutions_nodes[graphDFA.getCurrentState(
-                        )] = string_solution
+                        current_node = DFAedge(graphDFA.getNextState())
+                        current_node.nodes = closure
+                        string_solution = current_node.getStringSolution()
+                        graphDFA.addNodes([current_node])
 
-                        current_node = Node(graphDFA.getCurrentState())
-                        solutions_queaue.append(current_node)
+                        self.list_solutions_nodes[current_node.name] = current_node.nodes_name
+
+                        queue.append(current_node)
                         graphDFA.addNodes([current_node])
 
                         graphDFA = self.addDFAedgeNode(
-                            actual_solution, caracter, current_node, graphDFA)
+                            current_node, caracter, current_node, graphDFA)
                     else:
                         node_name = self.list_solutions_nodes.keys(
                         )[self.list_solutions_nodes.values().index(string_solution)]
                         graphDFA = self.addDFAedgeNode(
-                            actual_solution, caracter, graphDFA.findNode(node_name), graphDFA)
+                            current_node, caracter, graphDFA.findNode(node_name), graphDFA)
 
         return graphDFA
 
     def getClosure(self, initial_node):
         visited_nodes = []
-        queaue_nodes = []
+        name_visited_nodes = []
+        queue_nodes = []
+        name_visited_nodes.append(initial_node.name)
         visited_nodes.append(initial_node)
-        queaue_nodes.append(initial_node)
+        queue_nodes.append(initial_node)
+        print(queue_nodes)
 
-        while len(queaue_nodes) > 0:
-            node = queaue_nodes.pop(0)
+        while len(queue_nodes) > 0:
+            node = queue_nodes.pop(0)
             for ed in node.edges:
-                if ed.name == '&' and any(node.name == ed.name for node in visited_nodes):
-                    visited_nodes.append(ed.node)
-                    queaue_nodes.append(ed.node)
+                if ed.name == "&":
+                    if ed.node.name not in name_visited_nodes:
+                        name_visited_nodes.append(ed.node.name)
+                        visited_nodes.append(ed.node)
+                        queue_nodes.append(ed.node)
+                else:
+                    queue_nodes = []
+                    break
+                
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes
 
-    def dfaEdge(self, solution, value):
-
+    def searchDFAedge(self, dfaEdge, value):
+        name_visited_nodes = []
         visited_nodes = []
-        queaue_nodes = []
-        queaue_nodes.append(solution)
+        queue_nodes = []
+        for node in dfaEdge.nodes:
+            queue_nodes.append(node)
 
-        while len(queaue_nodes) > 0:
-            node = queaue_nodes.pop(0)
-            print(len(node)
+        while len(queue_nodes) > 0:
+            node = queue_nodes.pop(0)
             for ed in node.edges:
-                print(ed.name)
-                if (ed.name == '&' or ed.name == value) and any(n.name == ed.name for n in visited_nodes):
-                    visited_nodes.append(ed.node)
-                    queaue_nodes.append(ed.node)
+                if ed.name == "&":
+                    if ed.node.name not in name_visited_nodes:
+                        name_visited_nodes.append(ed.node.name)
+                        visited_nodes.append(ed.node)
+                        queue_nodes.append(ed.node)
+                else:
+                    queue_nodes = []
+                    break
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes

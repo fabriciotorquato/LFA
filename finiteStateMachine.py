@@ -107,7 +107,6 @@ class FiniteStateMachine():
         edge.node = second_node
         fisrt_node.edges.append(edge)
 
-        graph.addNodes([fisrt_node, second_node])
         graph.addEdges([edge])
         return graph
 
@@ -128,7 +127,7 @@ class FiniteStateMachine():
 
     def getDFA(self):
 
-        _ = self.getNFA().show()
+        _ = self.getNFA()
         graphDFA = Graph()
 
         initial_node = self.init
@@ -161,23 +160,19 @@ class FiniteStateMachine():
                         current_node = DFAedge(graphDFA.getNextState())
                         current_node.nodes = new_solution
                         string_solution = current_node.getStringSolution()
-                        print(string_solution)
+
                         graphDFA.addNodes([current_node])
 
                         self.list_solutions_nodes[current_node.name] = current_node.nodes_name
 
                         queue.append(current_node)
-                        graphDFA.addNodes([current_node])
 
-                        graphDFA = self.addDFAedgeNode(
-                            current_node, caracter, current_node, graphDFA)
+                        graphDFA = self.addDFAedgeNode(actual_DFAedge, caracter, current_node, graphDFA)
                     else:
-                        node_name = self.list_solutions_nodes.keys(
-                        )[self.list_solutions_nodes.values().index(string_solution)]
-                        graphDFA = self.addDFAedgeNode(
-                            current_node, caracter, graphDFA.findNode(node_name), graphDFA)
+                        node_name = self.list_solutions_nodes.keys()[self.list_solutions_nodes.values().index(string_solution)]
+                        graphDFA = self.addDFAedgeNode(actual_DFAedge, caracter, graphDFA.findNode(node_name), graphDFA)
         
-        graphDFA.clearNodes()
+        #graphDFA.clearNodes()
         
         return graphDFA
 
@@ -197,9 +192,7 @@ class FiniteStateMachine():
                         name_visited_nodes.append(ed.node.name)
                         visited_nodes.append(ed.node)
                         queue_nodes.append(ed.node)
-                else:
-                    queue_nodes = []
-                    break
+
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes
@@ -219,9 +212,7 @@ class FiniteStateMachine():
                         name_visited_nodes.append(ed.node.name)
                         visited_nodes.append(ed.node)
                         queue_nodes.append(ed.node)
-                else:
-                    queue_nodes = []
-                    break
+
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes

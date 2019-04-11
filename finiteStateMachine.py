@@ -127,14 +127,20 @@ class FiniteStateMachine():
         self.graph.node_finals = [node_final.name]
         return self.graph
 
+    def findNodeName(self, string_solution):
+        for name, node_name in self.list_solutions_nodes.items():
+            if string_solution == node_name:
+                return name
+        return ''
+
     def getDFA(self):
 
         graphNFA = self.getNFA()
         graphDFA = Graph()
+        queue = []
 
         initial_node = graphNFA.node_init
         final_node = graphNFA.node_finals[0]
-        queue = []
 
         closure = self.getClosure(initial_node)
 
@@ -146,10 +152,9 @@ class FiniteStateMachine():
         self.list_solutions_nodes[closure_node.name] = closure_node.nodes_name
 
         queue.append(closure_node)
-
         graphDFA.node_init = closure_node
 
-        while len(queue) > 0:
+        while queue:
             actual_DFAedge = queue.pop()
             new_solution = []
             for caracter in self.alphabet:
@@ -159,8 +164,9 @@ class FiniteStateMachine():
                 for node in new_solution:
                     new_solution_visited.append(node.name)
 
-                if len(new_solution) != 0:
-                    # Teve algum no depois                   Aplicar o closure para cada Node e juntar tudo virando o novo node_name
+                if new_solution:
+                    # Teve algum no depois
+                    # Aplicar o closure para cada Node e juntar tudo virando o novo node_name
                     solutions = []
                     for node in new_solution:
                         nodes_e = self.getClosure(node)
@@ -192,11 +198,8 @@ class FiniteStateMachine():
 
                         graphDFA.addEdges([edge])
                     else:
-                        node_name = ''
-                        for name, node_name in self.list_solutions_nodes.items():
-                            if string_solution == node_name:
-                                node_name = name
-                                break
+
+                        node_name = self.findNodeName(string_solution)
 
                         edge = Edge(None, caracter)
                         edge.node = graphDFA.findNode(node_name)
@@ -213,13 +216,14 @@ class FiniteStateMachine():
         visited_nodes = []
         name_visited_nodes = []
         queue_nodes = []
-        name_visited_nodes.append(initial_node.name)
 
+        name_visited_nodes.append(initial_node.name)
         visited_nodes.append(initial_node)
         queue_nodes.append(initial_node)
 
-        while len(queue_nodes) > 0:
-            node = queue_nodes.pop(0)
+        while queue_nodes:
+            # print(queue_nodes)
+            node = queue_nodes.pop()
             for ed in node.edges:
                 if ed.name == "&":
                     if ed.node.name not in name_visited_nodes:
@@ -234,17 +238,15 @@ class FiniteStateMachine():
         name_visited_nodes = []
         visited_nodes = []
         queue_nodes = []
-        for node in dfaEdge.nodes:
-            queue_nodes.append(node)
+        [queue_nodes.append(node) for node in dfaEdge.nodes]
 
-        while len(queue_nodes) > 0:
-            node = queue_nodes.pop(0)
+        while queue_nodes:
+            node = queue_nodes.pop()
             for ed in node.edges:
-                if ed.name == value:
-                    if ed.node.name not in name_visited_nodes:
-                        name_visited_nodes.append(ed.node.name)
-                        visited_nodes.append(ed.node)
-                        queue_nodes.append(ed.node)
+                if ed.name == value and ed.node.name not in name_visited_nodes:
+                    name_visited_nodes.append(ed.node.name)
+                    visited_nodes.append(ed.node)
+                    queue_nodes.append(ed.node)
 
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes

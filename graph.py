@@ -20,9 +20,6 @@ class Graph():
         self.state_name += 1
         return 'S{}'.format(self.state_name)
 
-    def getCurrentState(self):
-        return 'S{}'.format(self.state_name)
-
     def addNodes(self, nodes):
         for node in nodes:
             self.list_node.append(node)
@@ -47,17 +44,21 @@ class Graph():
         return True
 
     def show(self):
+
         G = nx.OrderedMultiDiGraph()
         G.add_nodes_from(x.name for x in self.list_node)
+
         labels = {}
+
         for node in self.list_node:
             for edge in node.edges:
                 labels[(node.name, edge.node.name)] = edge.name
                 G.add_edge(node.name, edge.node.name, length=5)
+
         print("Nodes do Grafo Inicial: ")
         print(self.node_init.name)
         print("Nodes do Grafo Finais: ")
-        [ print(node) for node in self.node_finals ]
+        [print(node) for node in self.node_finals]
         print("Nodes do Grafo: ")
         print(G.nodes())
         print("Edges do Grafo: ")

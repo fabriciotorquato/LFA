@@ -6,6 +6,6 @@ class DFAedge():
         self.edges = []
 
     def getStringSolution(self):
-        self.nodes_name = ''.join(
+        self.nodes_name = '|'.join(
             [str(item.name) for item in self.nodes])
         return self.nodes_name

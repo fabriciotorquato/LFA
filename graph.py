@@ -9,6 +9,8 @@ class Graph():
         self.list_node = []
         self.node_name = 0
         self.state_name = 0
+        self.node_init = None
+        self.node_finals = []
 
     def getNextName(self):
         self.node_name += 1
@@ -32,7 +34,7 @@ class Graph():
         return None
 
     def getStringSolution(self, solution):
-        string_solution = ''.join(
+        string_solution = '|'.join(
             [str(item.name) for item in solution])
         return string_solution
 
@@ -44,29 +46,6 @@ class Graph():
                 return False
         return True
 
-    def clearNodes(self):
-        is_nodes_validaded = True
-
-        while is_nodes_validaded:
-            new_node_list = []
-            new_edge_list = set()
-            is_nodes_validaded = False
-            for node in self.list_node:
-                validaded = False
-                for edge in self.list_edge:
-                    if node.name == edge.node.name:
-                        if not (len(node.edges) == 1 and node.edges[0].node.name == node.name):
-                            new_edge_list.add(edge)
-                            validaded = True
-                if validaded:
-                    new_node_list.append(node)
-                else:
-                    is_nodes_validaded = True
-            self.list_edge = list(new_edge_list)
-            print(len(self.list_edge))
-            self.list_node = new_node_list
-            print(len(self.list_node))
-
     def show(self):
         G = nx.OrderedMultiDiGraph()
         G.add_nodes_from(x.name for x in self.list_node)
@@ -75,7 +54,10 @@ class Graph():
             for edge in node.edges:
                 labels[(node.name, edge.node.name)] = edge.name
                 G.add_edge(node.name, edge.node.name, length=5)
-
+        print("Nodes do Grafo Inicial: ")
+        print(self.node_init.name)
+        print("Nodes do Grafo Finais: ")
+        [ print(node) for node in self.node_finals ]
         print("Nodes do Grafo: ")
         print(G.nodes())
         print("Edges do Grafo: ")

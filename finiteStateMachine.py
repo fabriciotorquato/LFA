@@ -122,16 +122,18 @@ class FiniteStateMachine():
                 self.addNodeOr()
             elif caracter == '*':
                 self.getNodeCloseState()
-        self.init, self.final = self.queue.pop()
+        self.graph.node_init, node_final = self.queue.pop()
         self.alphabet = list(set(self.alphabet))
+        self.graph.node_finals = [node_final.name]
         return self.graph
 
     def getDFA(self):
 
-        _ = self.getNFA()
+        graphNFA = self.getNFA()
         graphDFA = Graph()
 
-        initial_node = self.init
+        initial_node = graphNFA.node_init
+        final_node = graphNFA.node_finals[0]
         queue = []
 
         closure = self.getClosure(initial_node)
@@ -145,6 +147,8 @@ class FiniteStateMachine():
 
         queue.append(closure_node)
 
+        graphDFA.node_init = closure_node
+
         while len(queue) > 0:
             actual_DFAedge = queue.pop()
             new_solution = []
@@ -154,24 +158,24 @@ class FiniteStateMachine():
 
                 for node in new_solution:
                     new_solution_visited.append(node.name)
-                
+
                 if len(new_solution) != 0:
-                    #Teve algum no depois                   Aplicar o closure para cada Node e juntar tudo virando o novo node_name
+                    # Teve algum no depois                   Aplicar o closure para cada Node e juntar tudo virando o novo node_name
                     solutions = []
                     for node in new_solution:
                         nodes_e = self.getClosure(node)
                         for node_aux in nodes_e:
                             if node_aux.name not in new_solution_visited:
                                 new_solution_visited.append(node_aux.name)
-                                solutions.append(node_aux)  
+                                solutions.append(node_aux)
 
                     for node in solutions:
-                        new_solution.append(node) 
+                        new_solution.append(node)
 
                     new_solution.sort(key=lambda x: x.name)
 
                     string_solution = graphDFA.getStringSolution(new_solution)
-                        
+
                     if string_solution not in self.list_solutions_nodes.values():
                         new_state = DFAedge(graphDFA.getNextState())
                         new_state.nodes = new_solution
@@ -185,23 +189,24 @@ class FiniteStateMachine():
                         edge = Edge(None, caracter)
                         edge.node = new_state
                         actual_DFAedge.edges.append(edge)
-                        
+
                         graphDFA.addEdges([edge])
                     else:
                         node_name = ''
-                        for name, node_name in self.list_solutions_nodes.items():    # for name, age in dictionary.iteritems():  (for Python 2.x)
+                        for name, node_name in self.list_solutions_nodes.items():
                             if string_solution == node_name:
                                 node_name = name
-                                break;
+                                break
 
                         edge = Edge(None, caracter)
                         edge.node = graphDFA.findNode(node_name)
                         actual_DFAedge.edges.append(edge)
                         graphDFA.addEdges([edge])
 
-        
-        #graphDFA.clearNodes()
-        
+        for name, node_name in self.list_solutions_nodes.items():
+            if str(final_node) in node_name.split('|'):
+                graphDFA.node_finals.append(name)
+
         return graphDFA
 
     def getClosure(self, initial_node):
@@ -222,7 +227,6 @@ class FiniteStateMachine():
                         visited_nodes.append(ed.node)
                         queue_nodes.append(ed.node)
 
-
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes
 
@@ -241,6 +245,6 @@ class FiniteStateMachine():
                         name_visited_nodes.append(ed.node.name)
                         visited_nodes.append(ed.node)
                         queue_nodes.append(ed.node)
-                    
+
         visited_nodes.sort(key=lambda x: x.name)
         return visited_nodes

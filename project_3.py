@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
-from postfixNotation import PostfixNotation
-from finiteStateMachine import FiniteStateMachine
+from lfa.postfixNotation import PostfixNotation
+from lfa.finiteStateMachine import FiniteStateMachine
 
 if __name__ == "__main__":
-    postfixNotation = PostfixNotation('(A|B).C')
+    postfixNotation = PostfixNotation('(A|B).(C|D).E')
     print("Expressão Regular")
     print(postfixNotation.expression)
     print("Expressão Regular em Posfixa")

@@ -24,7 +24,7 @@ class PostfixNotation():
                 while x != char_open:
                     posfixa += x
                     x = pilha.pop()
-        while len(pilha) > 0:
+        while pilha:
             posfixa += pilha.pop()
 
         return posfixa
@@ -42,7 +42,7 @@ class PostfixNotation():
                 if (c == ')' and abre != '(') or (c == ']' and abre != '[') or (c == '}' and abre != '{'):
                     return False
 
-        if len(pilha) > 0:
+        if pilha:
             return False
         return True
 

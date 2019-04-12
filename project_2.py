@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-from postfixNotation import PostfixNotation
-from finiteStateMachine import FiniteStateMachine
+from lfa.postfixNotation import PostfixNotation
+from lfa.finiteStateMachine import FiniteStateMachine
 
 if __name__ == "__main__":
     postfixNotation = PostfixNotation('C.A.B')

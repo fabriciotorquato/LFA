@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 
 class Graph():
     def __init__(self):
+        self.node_init = None
         self.list_edge = []
         self.list_node = []
+        self.node_finals = []
         self.node_name = 0
         self.state_name = 0
-        self.node_init = None
-        self.node_finals = []
 
     def getNextName(self):
         self.node_name += 1
@@ -21,8 +21,7 @@ class Graph():
         return 'S{}'.format(self.state_name)
 
     def addNodes(self, nodes):
-        for node in nodes:
-            self.list_node.append(node)
+        [self.list_node.append(node) for node in nodes]
 
     def findNode(self, name):
         for node in self.list_node:
@@ -30,17 +29,11 @@ class Graph():
                 return node
         return None
 
-    def getStringSolution(self, solution):
-        string_solution = '|'.join(
-            [str(item.name) for item in solution])
-        return string_solution
-
     def addEdges(self, edges):
         for edge in edges:
-            if edge not in self.list_edge:
-                self.list_edge.append(edge)
-            else:
+            if edge in self.list_edge:
                 return False
+            self.list_edge.append(edge)
         return True
 
     def show(self):
@@ -74,5 +67,5 @@ class Graph():
 
         nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
 
-        plt.savefig("./teste.png")  # save as png
+        plt.savefig("../graph.png")  # save as png
         plt.show()  # display

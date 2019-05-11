@@ -272,8 +272,6 @@ class FiniteStateMachine():
                         list_possibled[key].append(nodes_equivales_key1)
                         list_possibled[key].append(nodes_equivales_key2)
 
-        print(hash_table)
-
         for key, value in hash_table.items():
             if value == 0:
                 edges_in_1, edges_out_1, is_final_node, is_initial_node_1 = graphDFAMini.removeNode(
@@ -286,7 +284,6 @@ class FiniteStateMachine():
                 graphDFAMini.addNodes([union_node])
 
                 if union_node.is_initial_node:
-                    print("SSSSSSSSSSsss", union_node.name)
                     graphDFAMini.node_init = union_node
 
                 for edge in edges_in_1:
@@ -299,6 +296,8 @@ class FiniteStateMachine():
                 union_node.edges.extend(edges_out_2)
 
         graphDFAMini.removeJoker()
+
+        graphDFAMini = self._remove_states_unreachable(graphDFAMini)
 
         return graphDFAMini
 

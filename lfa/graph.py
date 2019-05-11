@@ -39,9 +39,10 @@ class Graph():
                 is_initial_node = node.is_initial_node
                 self.list_node.remove(node)
 
-        for edge in self.list_edge:
-            if edge.node.name == node_name:
-                edges_in.append(edge)
+        for node in self.list_node:
+            for edge in node.edges:
+                if edge.node.name == node_name:
+                    edges_in.append(edge)
 
         return edges_in, edges_out, is_final_node, is_initial_node
 

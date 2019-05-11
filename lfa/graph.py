@@ -26,6 +26,41 @@ class Graph():
     def addNodes(self, nodes):
         [self.list_node.append(node) for node in nodes]
 
+    def removeNode(self, node_name):
+        edges_in = []
+        edges_out = []
+        is_final_node = False
+        is_initial_node = False
+
+        for node in self.list_node:
+            if node.name == node_name:
+                edges_out = node.edges
+                is_final_node = node.is_final_node
+                is_initial_node = node.is_initial_node
+                self.list_node.remove(node)
+
+        for edge in self.list_edge:
+            if edge.node.name == node_name:
+                edges_in.append(edge)
+
+        return edges_in, edges_out, is_final_node, is_initial_node
+
+    def removeJoker(self):
+        node_name = self.getjokerState()
+
+        for node in self.list_node:
+            list_edges_removed = []
+            for edge in node.edges:
+                if node_name == edge.node.name:
+                    list_edges_removed.append(edge)
+                    self.list_edge.remove(edge)
+            for edge in list_edges_removed:
+                node.edges.remove(edge)
+
+        for node in self.list_node:
+            if node_name == node.name:
+                self.list_node.remove(node)
+
     def findNode(self, name):
         for node in self.list_node:
             if node.name == name:
@@ -57,7 +92,7 @@ class Graph():
         for node in self.list_node:
             for edge in node.edges:
                 # Fazer o graico ser aceito pra edges do mesmo ponto
-                # labels[(node.name, edge.node.name)] = edge.name
+                labels[(node.name, edge.node.name)] = edge.name
                 G.add_edge(node.name, edge.node.name, length=5)
 
         print("Nodes do Grafo Inicial: ")
@@ -70,6 +105,7 @@ class Graph():
         print(G.edges())
         print("Labels do Grafo: ")
         print(labels)
+        # labels={}
 
         pos = nx.layout.spring_layout(G)
 

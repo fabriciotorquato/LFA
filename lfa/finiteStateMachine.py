@@ -136,6 +136,7 @@ class FiniteStateMachine():
         solution_nodes[closure.name] = closure.nodes_name
 
         queue = [closure]
+        closure.is_initial_node = True
         graphDFA.node_init = closure
 
         while queue:
@@ -227,26 +228,95 @@ class FiniteStateMachine():
         hash_table = {}
 
         # Marcar estados trivialmente não-equivalentes {estado final, estado não-final}
-        for node_A in graphDFA.list_node:
-            for node_B in graphDFA.list_node:
-                if node_A.name != node_B.name:
-                    tupla_name = [node_A.name, node_B.name]
-                    tupla_name.sort()
-                    tupla_name = (tupla_name[0], tupla_name[1])
-                    if node_A.is_final_node == node_B.is_final_node:
-                        if tupla_name not in hash_table:
-                            hash_table[tupla_name] = 0
+        for node_A in graphDFAMini.list_node:
+            for node_B in graphDFAMini.list_node:
+                tupla_name = [node_A.name, node_B.name]
+                tupla_name.sort()
+                tupla_name = tuple(tupla_name)
+                if node_A.is_final_node == node_B.is_final_node and node_A.name != node_B.name:
+                    if tupla_name not in hash_table:
+                        hash_table[tupla_name] = 0
+                else:
+                    if tupla_name not in hash_table:
+                        hash_table[tupla_name] = 1
+
+        list_possibled = {}
+
+        for key, value in hash_table.items():
+            if value == 0:
+                nodes_equivales_key1 = []
+                nodes_equivales_key2 = []
+
+                for caracter in self.alphabet:
+                    nodes_equivales_key1.append(
+                        graphDFAMini.findEdgeCaracter(key[0], caracter).name)
+                    nodes_equivales_key2.append(
+                        graphDFAMini.findEdgeCaracter(key[1], caracter).name)
+                
+                nodes_equivales_key1.sort()
+                nodes_equivales_key2.sort()
+
+                nodes_equivales_key1 = tuple(nodes_equivales_key1)
+                nodes_equivales_key2 = tuple(nodes_equivales_key2)
+
+                if hash_table[nodes_equivales_key1] == 1 or hash_table[nodes_equivales_key2] == 1:
+
+                    hash_table[key] = 1
+                    hash_table, list_possibled = self._verific_possibled_key(
+                        hash_table, list_possibled, key)
+                else:
+                    if key not in list_possibled:
+                        list_possibled[key] = [
+                            nodes_equivales_key1, nodes_equivales_key2]
                     else:
-                        if tupla_name not in hash_table:
-                            hash_table[tupla_name] = 1
+                        list_possibled[key].append(nodes_equivales_key1)
+                        list_possibled[key].append(nodes_equivales_key2)
 
         print(hash_table)
 
+        for key, value in hash_table.items():
+            if value == 0:
+                edges_in_1, edges_out_1, is_final_node, is_initial_node_1 = graphDFAMini.removeNode(
+                    key[0])
+                edges_in_2, edges_out_2, is_final_node, is_initial_node_2 = graphDFAMini.removeNode(
+                    key[0])
+
+                union_node = DFANode(
+                    graphDFAMini.getNextState(), is_final_node=is_final_node, is_initial_node=(is_initial_node_1 or is_initial_node_2) )
+                graphDFAMini.addNodes([union_node])
+
+                if union_node.is_initial_node:
+                    print("SSSSSSSSSSsss", union_node.name)
+                    graphDFAMini.node_init = union_node
+
+                for edge in edges_in_1:
+                    edge.node = union_node
+
+                for edge in edges_in_2:
+                    edge.node = union_node
+
+                union_node.edges = edges_out_1
+                union_node.edges.extend(edges_out_2)
+
+        graphDFAMini.removeJoker()
+
         return graphDFAMini
+
+    def _verific_possibled_key(self, hash_table, list_possibled, key):
+        queue = [key]
+        while len(queue):
+            current = queue.pop()
+            if current in list_possibled:
+                for k in list_possibled[current].items():
+                    hash_table[k] = 1
+                    queue.append(k)
+                list_possibled.remove(current)
+
+        return hash_table, list_possibled
 
     def _validaded_DFA(self, graph):
 
-        node_joker = DFANode(graph.getjokerState())
+        node_joker = DFANode(graph.getjokerState(), is_final_node=True)
         have_inlcude_joker = False
 
         for node in graph.list_node:
@@ -274,9 +344,12 @@ class FiniteStateMachine():
 
     def _remove_states_unreachable(self, graph):
         graph_reachable = Graph()
+        graph_reachable.node_name = graph.node_name
+        graph_reachable.state_name = graph.state_name
 
         initial_nodes = graph.node_init
         graph_reachable.node_init = initial_nodes
+        graph_reachable.node_init.is_initial_node = True
         queue = [initial_nodes]
 
         memory_nodes_name = [initial_nodes.name]

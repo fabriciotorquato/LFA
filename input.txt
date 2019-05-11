@@ -1,0 +1,5 @@
+S X Y A B F
+a b
+S:XY,X:XaA,X:XbB,X:F,Aa:aA,Ab:bA,AY:Ya,Ba:aB,Bb:bB,BY:Yb,Fa:aF,Fb:bF,FY:
+S
+1 2 7 3 8 10 4 12 11 13

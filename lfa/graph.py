@@ -20,6 +20,9 @@ class Graph():
         self.state_name += 1
         return 'S{}'.format(self.state_name)
 
+    def getjokerState(self):
+        return 'S99'
+
     def addNodes(self, nodes):
         [self.list_node.append(node) for node in nodes]
 
@@ -36,6 +39,14 @@ class Graph():
             self.list_edge.append(edge)
         return True
 
+    def findEdgeCaracter(self, node_name, caracter):
+        for node in self.list_node:
+            if node.name == node_name:
+                for edge in node.edges:
+                    if edge.name == caracter:
+                        return edge.node
+        return None
+
     def show(self):
 
         G = nx.OrderedMultiDiGraph()
@@ -45,7 +56,8 @@ class Graph():
 
         for node in self.list_node:
             for edge in node.edges:
-                labels[(node.name, edge.node.name)] = edge.name
+                # Fazer o graico ser aceito pra edges do mesmo ponto
+                # labels[(node.name, edge.node.name)] = edge.name
                 G.add_edge(node.name, edge.node.name, length=5)
 
         print("Nodes do Grafo Inicial: ")
@@ -56,6 +68,7 @@ class Graph():
         print(G.nodes())
         print("Edges do Grafo: ")
         print(G.edges())
+        print("Labels do Grafo: ")
         print(labels)
 
         pos = nx.layout.spring_layout(G)

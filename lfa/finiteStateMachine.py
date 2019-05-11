@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .edge import Edge
-from .dfaEdge import DFAEdge
+from .dfaNode import DFANode
 from .node import Node
 from .graph import Graph
 from .utils import getStringSolution
@@ -128,7 +128,7 @@ class FiniteStateMachine():
         initial_node = graphNFA.node_init
         final_node = graphNFA.node_finals[0]
 
-        closure = DFAEdge(graphDFA.getNextState())
+        closure = DFANode(graphDFA.getNextState())
         closure.nodes = self._getClosure(initial_node)
         closure.convertStringSolution()
         graphDFA.addNodes([closure])
@@ -139,11 +139,11 @@ class FiniteStateMachine():
         graphDFA.node_init = closure
 
         while queue:
-            actual_DFAedge = queue.pop()
+            actual_DFAnode = queue.pop()
 
             for caracter in self.alphabet:
 
-                solution = self._getDFAedge(actual_DFAedge, caracter)
+                solution = self._getDFAnode(actual_DFAnode, caracter)
                 solution_visited = [node.name for node in solution]
 
                 if solution:
@@ -159,7 +159,7 @@ class FiniteStateMachine():
                     string_solution = getStringSolution(solution)
 
                     if string_solution not in solution_nodes.values():
-                        state = DFAEdge(graphDFA.getNextState())
+                        state = DFANode(graphDFA.getNextState())
                         state.nodes = solution
                         state.convertStringSolution()
 
@@ -170,7 +170,7 @@ class FiniteStateMachine():
 
                         edge = Edge(None, caracter)
                         edge.node = state
-                        actual_DFAedge.edges.append(edge)
+                        actual_DFAnode.edges.append(edge)
                         graphDFA.addEdges([edge])
 
                     else:
@@ -180,7 +180,7 @@ class FiniteStateMachine():
 
                         edge = Edge(None, caracter)
                         edge.node = graphDFA.findNode(node_name)
-                        actual_DFAedge.edges.append(edge)
+                        actual_DFAnode.edges.append(edge)
                         graphDFA.addEdges([edge])
 
         for name, node_name in solution_nodes.items():
@@ -204,10 +204,10 @@ class FiniteStateMachine():
 
         return visited_nodes
 
-    def _getDFAedge(self, dfaEdge, value):
+    def _getDFAnode(self, dfaNode, value):
         name_visited_nodes = []
         visited_nodes = []
-        queue_nodes = dfaEdge.nodes.copy()
+        queue_nodes = dfaNode.nodes.copy()
 
         while queue_nodes:
             node = queue_nodes.pop()
@@ -218,3 +218,81 @@ class FiniteStateMachine():
                     queue_nodes.append(ed.node)
 
         return visited_nodes
+
+    def getDFAMini(self):
+        graphDFA = self.getDFA()
+
+        graphDFAMini = self._remove_states_unreachable(graphDFA)
+        graphDFAMini = self._validaded_DFA(graphDFAMini)
+        hash_table = {}
+
+        # Marcar estados trivialmente não-equivalentes {estado final, estado não-final}
+        for node_A in graphDFA.list_node:
+            for node_B in graphDFA.list_node:
+                if node_A.name != node_B.name:
+                    tupla_name = [node_A.name, node_B.name]
+                    tupla_name.sort()
+                    tupla_name = (tupla_name[0], tupla_name[1])
+                    if node_A.is_final_node == node_B.is_final_node:
+                        if tupla_name not in hash_table:
+                            hash_table[tupla_name] = 0
+                    else:
+                        if tupla_name not in hash_table:
+                            hash_table[tupla_name] = 1
+
+        print(hash_table)
+
+        return graphDFAMini
+
+    def _validaded_DFA(self, graph):
+
+        node_joker = DFANode(graph.getjokerState())
+        have_inlcude_joker = False
+
+        for node in graph.list_node:
+            for caracter in self.alphabet:
+                is_caracter_include = False
+                for edge in node.edges:
+                    if edge.name == caracter:
+                        is_caracter_include = True
+                if not is_caracter_include:
+                    if not have_inlcude_joker:
+                        graph.addNodes([node_joker])
+                        have_inlcude_joker = True
+                    edge = Edge(node_joker, caracter)
+                    graph.addEdges([edge])
+                    node.edges.append(edge)
+        return graph
+
+    def _create_nodeDFA_joker(self, graph):
+        dfaNode = DFANode(graph.getjokerState())
+        edges = []
+        for caracter in self.alphabet:
+            edge = Edge(dfaNode, caracter)
+            edges.append(edge)
+        return dfaNode, edges
+
+    def _remove_states_unreachable(self, graph):
+        graph_reachable = Graph()
+
+        initial_nodes = graph.node_init
+        graph_reachable.node_init = initial_nodes
+        queue = [initial_nodes]
+
+        memory_nodes_name = [initial_nodes.name]
+
+        while len(queue):
+            current_node = queue.pop()
+            graph_reachable.addNodes([current_node])
+            for edge in current_node.edges:
+                if edge.node.name not in memory_nodes_name:
+                    memory_nodes_name.append(edge.node.name)
+                    queue.append(edge.node)
+
+        for node in graph.node_finals:
+            for new_nodes in graph_reachable.list_node:
+                if new_nodes.name == node:
+                    new_nodes.is_final_node = True
+                    graph_reachable.node_finals.append(new_nodes.name)
+
+        return graph_reachable

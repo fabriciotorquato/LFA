@@ -241,36 +241,29 @@ class FiniteStateMachine():
                         hash_table[tupla_name] = 1
 
         list_possibled = {}
-
+        
         for key, value in hash_table.items():
             if value == 0:
-                nodes_equivales_key1 = []
-                nodes_equivales_key2 = []
+                nodes_equivales_key = []
 
-                for caracter in self.alphabet:
-                    nodes_equivales_key1.append(
-                        graphDFAMini.findEdgeCaracter(key[0], caracter).name)
-                    nodes_equivales_key2.append(
-                        graphDFAMini.findEdgeCaracter(key[1], caracter).name)
-                
-                nodes_equivales_key1.sort()
-                nodes_equivales_key2.sort()
+                for caracter in self.alphabet:   
+                    pair_nodes_equivales_key = []  
+                    pair_nodes_equivales_key.append(graphDFAMini.findEdgeCaracter(key[0], caracter).name)       
+                    pair_nodes_equivales_key.append(graphDFAMini.findEdgeCaracter(key[1], caracter).name)  
+                    pair_nodes_equivales_key.sort()   
+                    pair_nodes_equivales_key = tuple(pair_nodes_equivales_key)       
+                    nodes_equivales_key.append(pair_nodes_equivales_key)
 
-                nodes_equivales_key1 = tuple(nodes_equivales_key1)
-                nodes_equivales_key2 = tuple(nodes_equivales_key2)
-
-                if hash_table[nodes_equivales_key1] == 1 or hash_table[nodes_equivales_key2] == 1:
-
-                    hash_table[key] = 1
-                    hash_table, list_possibled = self._verific_possibled_key(
-                        hash_table, list_possibled, key)
-                else:
-                    if key not in list_possibled:
-                        list_possibled[key] = [
-                            nodes_equivales_key1, nodes_equivales_key2]
+                for node_key in nodes_equivales_key:
+                    if hash_table[node_key] == 1:
+                        hash_table[key] = 1
+                        hash_table, list_possibled = self._verific_possibled_key(
+                            hash_table, list_possibled, key)
+                        break
                     else:
-                        list_possibled[key].append(nodes_equivales_key1)
-                        list_possibled[key].append(nodes_equivales_key2)
+                        if key not in list_possibled:
+                            list_possibled[key] = []
+                        list_possibled[key].append(node_key)
 
         for key, value in hash_table.items():
             if value == 0:
@@ -306,10 +299,11 @@ class FiniteStateMachine():
         while len(queue):
             current = queue.pop()
             if current in list_possibled:
-                for k in list_possibled[current].items():
+                print(list_possibled[current])
+                for k in list_possibled[current]:
                     hash_table[k] = 1
                     queue.append(k)
-                list_possibled.remove(current)
+                del list_possibled[current]
 
         return hash_table, list_possibled
 
